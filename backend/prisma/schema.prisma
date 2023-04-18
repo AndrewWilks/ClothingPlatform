@@ -1,0 +1,50 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id          String      @id @default(uuid())
+  firstName   String
+  lastName    String
+  email       String      @unique
+  password    String
+  phoneNumber String?
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  jobs        Job[] // One-to-many relationship with jobs
+  quotations  Quotation[] // One-to-many relationship with quotations
+}
+
+model Job {
+  id           String      @id @default(uuid())
+  clientId     String
+  client       User        @relation(fields: [clientId], references: [id])
+  title        String
+  description  String
+  clothingType String
+  location     String
+  budget       Float? // Nullable, as budget is optional
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+  quotations   Quotation[] // One-to-many relationship with quotations
+}
+
+model Quotation {
+  id        String   @id @default(uuid())
+  jobId     String
+  job       Job      @relation(fields: [jobId], references: [id])
+  makerId   String
+  maker     User     @relation(fields: [makerId], references: [id])
+  price     Float
+  comments  String? // Nullable, as comments are optional
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
